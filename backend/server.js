@@ -34,8 +34,18 @@ function createApp() {
     const w = workers.get(name.toLowerCase());
     if (!w) return res.status(404).json({ error: 'unknown name, register first' });
     if (w.status === 'done') return res.status(409).json({ error: 'worker already closed' });
-    const { message, tokensUsed, tokenLimit: lim, status = 'working' } = req.body;
+    const { message, tokensUsed, tokenLimit: lim, status = 'working', role = w.role } = req.body;
     if (!STATUSES.includes(status)) return res.status(400).json({ error: `status must be one of ${STATUSES}` });
+    if (role !== w.role && !(w.role === 'worker' && role === 'orchestrator')) {
+      return res.status(400).json({ error: 'role can only change from worker to orchestrator' });
+    }
+    if (role !== w.role) {
+      // promotion: the worker collapses as a retired copy, the same name respawns as orchestrator.
+      // The copy drops its tokens: reports are cumulative, so the orchestrator carries them on.
+      const now = Date.now();
+      workers.set(`${name.toLowerCase()}#worker`, { ...w, status: 'done', tokensUsed: 0, updatedAt: now });
+      Object.assign(w, { role, startedAt: now });
+    }
     if (message !== undefined) w.message = String(message).slice(0, 500);
     if (Number.isFinite(tokensUsed) && tokensUsed >= 0) w.tokensUsed = tokensUsed;
     if (Number.isFinite(lim) && lim > 0) tokenLimit = lim;

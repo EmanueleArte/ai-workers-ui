@@ -68,7 +68,7 @@ Se la dashboard è spenta, Claude salta il reporting senza bloccare il lavoro.
 | Metodo | Path | Body | Risposte |
 |---|---|---|---|
 | POST | `/api/register` | `{ name, role: "worker"\|"orchestrator" }` | 201, 400, 409 nome già usato |
-| POST | `/api/report` | `{ name, message?, tokensUsed?, tokenLimit?, status?: "working"\|"done" }` | 200, 400, 404 non registrato, 409 già chiuso |
+| POST | `/api/report` | `{ name, message?, tokensUsed?, tokenLimit?, status?: "working"\|"done", role?: "orchestrator" }` | 200, 400 (anche cambio ruolo non ammesso), 404 non registrato, 409 già chiuso. `role: "orchestrator"` promuove un worker: il worker collassa e ricompare come orchestratore |
 | GET | `/api/state` | – | `{ workers, tokensUsed, tokenLimit, progress, serverTime }` |
 | DELETE | `/api/state` | – | reset |
 

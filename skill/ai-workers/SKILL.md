@@ -38,6 +38,7 @@ curl -s -X POST http://localhost:8765/api/report \
 - `tokensUsed`: your best estimate of the tokens you have consumed so far (cumulative, for you only). The dashboard sums all workers to build the pyramid.
 - `tokenLimit` (optional, send it once, typically the orchestrator): the token budget of the whole session, e.g. `"tokenLimit":1000000`.
 - Do not put secrets, credentials, or personal data in `message`.
+- Became an orchestrator mid-task (you start spawning subagents)? Keep your name and send `"role":"orchestrator"` in a report: your worker collapses and you respawn as orchestrator. Only worker → orchestrator is allowed.
 
 ## 3. At the end: close yourself
 
