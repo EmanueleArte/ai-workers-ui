@@ -86,7 +86,7 @@ export function Backdrop({ progress }) {
       ))}
       {/* company sign */}
       <rect x="700" y="36" width="250" height="64" rx="8" fill="#0f172a" />
-      <text x="825" y="76" textAnchor="middle" fill="#38bdf8" fontSize="30" fontWeight="bold" fontFamily="system-ui, sans-serif" letterSpacing="2">Maidaive</text>
+      <text x="825" y="76" textAnchor="middle" fill="#f97316" fontSize="30" fontWeight="bold" fontFamily="system-ui, sans-serif" letterSpacing="2">Maidaive</text>
       <text x="825" y="92" textAnchor="middle" fill="#94a3b8" fontSize="9" fontFamily="system-ui, sans-serif">SOFTWARE &amp; IT SOLUTIONS</text>
       {/* plant */}
       <rect x="640" y={BASE_Y - 34} width="24" height="30" fill="#b45309" />
