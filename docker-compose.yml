@@ -1,0 +1,8 @@
+services:
+  ai-workers-ui:
+    build: .
+    ports:
+      - "127.0.0.1:8765:8765"   # localhost only: the API has no auth
+    environment:
+      - TOKEN_BUDGET=1000000    # default session token budget (a report can override it)
+    restart: unless-stopped
