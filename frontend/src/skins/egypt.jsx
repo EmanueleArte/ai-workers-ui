@@ -12,13 +12,13 @@ const PILE_TOTAL = (PILE_ROWS * (PILE_ROWS + 1)) / 2;
 const PYR_TOTAL = PYR_ROWS * (PYR_ROWS + 1);
 const SKIN = '#b5743d', SKIN_DARK = '#8a5228';
 
-function hash(s) {
+export function hash(s) {
   let h = 2166136261;
   for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
   return h;
 }
 
-function workerPose(w, t) {
+export function workerPose(w, t) {
   const h = hash(w.name);
   const p = (t / TRIP_MS + (h % 1000) / 1000) % 1;
   const going = p < 0.5;
@@ -31,7 +31,7 @@ function workerPose(w, t) {
   };
 }
 
-function fallK(w, now) {
+export function fallK(w, now) {
   if (w.status !== 'done') return 0;
   const k = Math.min(1, Math.max(0, (now - w.updatedAt) / FALL_MS));
   return k * k; // accelerate like gravity
@@ -140,7 +140,7 @@ function Overseer({ x, y, dir, t, phase, fall }) {
   );
 }
 
-function Label({ w, x, y, now, top }) {
+export function Label({ w, x, y, now, top }) {
   const showBubble = w.message && now - w.updatedAt < BUBBLE_MS;
   return (
     <g>
@@ -198,8 +198,8 @@ export default function EgyptScene({ state, now }) {
       <rect y={BASE_Y - 10} width={W} height={H - BASE_Y + 10} fill="url(#sand)" />
       <Pyramid progress={state.progress} />
       <Stones progress={state.progress} />
-      {figures.map((f) => <g key={f.w.name}>{f.el}</g>)}
-      {figures.map((f) => <Label key={f.w.name} w={f.w} x={f.x} y={f.y} now={now} top={f.top * (1 - 0.7 * f.fall)} />)}
+      {figures.map((f) => <g key={`${f.w.name}:${f.w.role}`}>{f.el}</g>)}
+      {figures.map((f) => <Label key={`${f.w.name}:${f.w.role}`} w={f.w} x={f.x} y={f.y} now={now} top={f.top * (1 - 0.7 * f.fall)} />)}
       {state.workers.length === 0 && (
         <text x={W / 2} y={200} textAnchor="middle" fill="#5a3d1c" fontSize="18">
           Nessun lavoratore al cantiere. Avvia Claude con la skill ai-workers.
