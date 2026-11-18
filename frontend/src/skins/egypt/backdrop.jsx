@@ -107,18 +107,22 @@ export const Backdrop = React.memo(function Backdrop({ progress }) {
         <polygon points="70,410 150,340 230,410" />
         <polygon points="190,412 245,365 300,412" />
         <polygon points="560,405 640,322 720,405" />
+        {/* side bleed: sparse, smaller echoes so wide screens continue the horizon */}
+        <polygon points="-330,412 -260,352 -190,412" /><polygon points="1110,410 1180,348 1250,410" /><polygon points="1270,412 1310,378 1350,412" />
       </g>
       <g fill="#a46e47" opacity="0.4">
         <polygon points="150,340 230,410 170,410" />
         <polygon points="640,322 720,405 660,405" />
+        <polygon points="-260,352 -190,412 -245,412" /><polygon points="1180,348 1250,410 1195,410" />
       </g>
-      <path d={`M${-BLEED},${BASE_Y - 52} H0 Q180,${BASE_Y - 92} 400,${BASE_Y - 50} T1000,${BASE_Y - 62} H${W + BLEED} V${H} H${-BLEED} Z`} fill="url(#eg-dune)" opacity="0.9" />
-      <path d={`M${-BLEED},${BASE_Y - 22} H0 Q260,${BASE_Y - 48} 520,${BASE_Y - 20} T1000,${BASE_Y - 26} H${W + BLEED} V${H} H${-BLEED} Z`} fill="#dcaa68" />
+      <path d={`M${-BLEED},${BASE_Y - 52} H-700 Q-520,${BASE_Y - 74} -350,${BASE_Y - 56} T0,${BASE_Y - 52} Q180,${BASE_Y - 92} 400,${BASE_Y - 50} T1000,${BASE_Y - 62} Q1180,${BASE_Y - 82} 1350,${BASE_Y - 58} T1700,${BASE_Y - 60} H${W + BLEED} V${H} H${-BLEED} Z`} fill="url(#eg-dune)" opacity="0.9" />
+      <path d={`M${-BLEED},${BASE_Y - 22} H-700 Q-480,${BASE_Y - 40} -300,${BASE_Y - 24} T0,${BASE_Y - 22} Q260,${BASE_Y - 48} 520,${BASE_Y - 20} T1000,${BASE_Y - 26} Q1200,${BASE_Y - 44} 1380,${BASE_Y - 24} T1700,${BASE_Y - 26} H${W + BLEED} V${H} H${-BLEED} Z`} fill="#dcaa68" />
       <rect x={-BLEED} y={BASE_Y - 10} width={W + 2 * BLEED} height={H - BASE_Y + 10 + BLEED} fill="url(#sand)" />
       {/* trodden track between quarry and pyramid */}
       <path d={`M${PATH_FROM - 20},486 Q${(PATH_FROM + PATH_TO) / 2},478 ${PATH_TO + 30},486 L${PATH_TO + 40},545 Q${(PATH_FROM + PATH_TO) / 2},552 ${PATH_FROM - 30},545 Z`} fill="#8f5f31" opacity="0.14" />
       <g stroke="#8f5f31" strokeWidth="1" opacity="0.25" fill="none" strokeLinecap="round">
         <path d="M40,520 q30,-4 60,0" /><path d="M660,512 q40,-5 80,0" /><path d="M880,540 q30,-4 60,0" /><path d="M420,553 q30,-3 60,0" />
+        <path d="M-200,524 q30,-4 60,0" /><path d="M-430,546 q40,-5 80,0" /><path d="M1090,518 q30,-4 60,0" /><path d="M1290,548 q40,-5 80,0" />
       </g>
       <Pyramid progress={progress} />
       <Stones progress={progress} />

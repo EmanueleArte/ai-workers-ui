@@ -122,21 +122,26 @@ export const Backdrop = React.memo(function Backdrop({ progress }) {
         <path d="M570,66 q8,-16 28,-12 q12,-14 30,-4 q20,-2 22,14 Z" />
       </g>
       {/* far hills with a distant keep */}
-      <path d={`M${-BLEED},${BASE_Y - 60} H0 Q140,${BASE_Y - 140} 300,${BASE_Y - 70} T620,${BASE_Y - 80} T1000,${BASE_Y - 90} H${W + BLEED} V${H} H${-BLEED} Z`} fill="#9fb08e" />
+      <path d={`M${-BLEED},${BASE_Y - 60} H-700 Q-560,${BASE_Y - 130} -380,${BASE_Y - 80} Q-120,${BASE_Y - 30} 0,${BASE_Y - 60} Q140,${BASE_Y - 140} 300,${BASE_Y - 70} T620,${BASE_Y - 80} T1000,${BASE_Y - 90} T1350,${BASE_Y - 70} T1700,${BASE_Y - 60} H${W + BLEED} V${H} H${-BLEED} Z`} fill="#9fb08e" />
       <g fill="#8a9a7d">
         <rect x="470" y={BASE_Y - 128} width="26" height="40" />
         <rect x="496" y={BASE_Y - 110} width="40" height="24" />
         <path d={`M470,${BASE_Y - 128} h4 v-5 h5 v5 h5 v-5 h5 v5 h7 v-5 h0`} />
+        {/* side bleed: sparse far silhouettes so wide screens don't show flat bands */}
+        <rect x="-428" y={BASE_Y - 130} width="18" height="48" />
+        <path d={`M-428,${BASE_Y - 130} v-5 h5 v5 h3 v-5 h4 v5 h3 v-5 h3 v5 Z`} />
+        <path d={`M1470,${BASE_Y - 80} v-24 h22 v24 Z M1468,${BASE_Y - 104} l13,-14 l13,14 Z`} />
       </g>
-      <path d={`M${-BLEED},${BASE_Y - 15} H0 Q200,${BASE_Y - 60} 420,${BASE_Y - 20} T1000,${BASE_Y - 25} H${W + BLEED} V${H} H${-BLEED} Z`} fill="#6f8a47" />
+      <path d={`M${-BLEED},${BASE_Y - 15} H-700 Q-520,${BASE_Y - 55} -330,${BASE_Y - 25} T0,${BASE_Y - 15} Q200,${BASE_Y - 60} 420,${BASE_Y - 20} T1000,${BASE_Y - 25} Q1180,${BASE_Y - 60} 1360,${BASE_Y - 30} T1700,${BASE_Y - 15} H${W + BLEED} V${H} H${-BLEED} Z`} fill="#6f8a47" />
       <Tree x={40} y={BASE_Y - 22} s={0.9} /><Tree x={66} y={BASE_Y - 18} s={0.7} />
       <Tree x={640} y={BASE_Y - 22} s={0.8} /><Tree x={960} y={BASE_Y - 24} s={1} />
+      <Tree x={-260} y={BASE_Y - 20} s={0.8} /><Tree x={1230} y={BASE_Y - 34} s={0.7} /><Tree x={1252} y={BASE_Y - 32} s={0.55} />
       <rect x={-BLEED} y={BASE_Y - 10} width={W + 2 * BLEED} height={H - BASE_Y + 10 + BLEED} fill="url(#md-grass)" />
       {/* dirt road between quarry and tower */}
       <path d={`M210,${BASE_Y + 12} Q420,${BASE_Y + 2} 640,${BASE_Y + 12} L660,548 Q420,556 190,548 Z`} fill="#9a7444" opacity="0.5" />
       {[260, 330, 410, 480, 560, 300, 520].map((x, i) => <ellipse key={i} cx={x} cy={BASE_Y + 22 + (i % 3) * 18} rx="4" ry="2" fill="#5e4220" opacity="0.5" />)}
       <g stroke="#2f4020" strokeWidth="1.2" opacity="0.5" strokeLinecap="round">
-        {[30, 120, 700, 860, 930, 180].map((x, i) => <path key={i} d={`M${x},${500 + (i % 3) * 18} l-2,-6 M${x + 3},${500 + (i % 3) * 18} l1,-7 M${x + 6},${500 + (i % 3) * 18} l3,-5`} />)}
+        {[30, 120, 700, 860, 930, 180, -150, -520, 1150, 1450].map((x, i) => <path key={i} d={`M${x},${500 + (i % 3) * 18} l-2,-6 M${x + 3},${500 + (i % 3) * 18} l1,-7 M${x + 6},${500 + (i % 3) * 18} l3,-5`} />)}
       </g>
       <Tower progress={progress} />
       <Quarry progress={progress} />

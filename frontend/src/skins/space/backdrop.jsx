@@ -149,13 +149,21 @@ export const Backdrop = React.memo(function Backdrop({ progress }) {
       <path d="M370,100 q30,-8 70,2 M400,140 q20,-4 40,0" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.35" />
       <path d="M420,52 A58,58 0 0 1 420,168 A44,58 0 0 0 420,52 Z" fill="#03060d" opacity="0.55" />
       {/* distant ridge and ground */}
-      <path d={`M${-BLEED},${BASE_Y - 40} H0 L80,${BASE_Y - 62} L150,${BASE_Y - 48} L260,${BASE_Y - 80} L340,${BASE_Y - 52} L470,${BASE_Y - 66} L600,${BASE_Y - 44} L700,${BASE_Y - 70} L820,${BASE_Y - 50} L1000,${BASE_Y - 64} H${W + BLEED} V${H} H${-BLEED} Z`} fill="url(#sp-ridge)" />
-      <path d={`M${-BLEED},${BASE_Y - 20} H0 Q160,${BASE_Y - 45} 360,${BASE_Y - 20} T1000,${BASE_Y - 28} H${W + BLEED} V${H} H${-BLEED} Z`} fill="#5a606b" />
+      <path d={`M${-BLEED},${BASE_Y - 50} H-700 L-600,${BASE_Y - 70} L-480,${BASE_Y - 46} L-380,${BASE_Y - 74} L-260,${BASE_Y - 50} L-130,${BASE_Y - 68} L0,${BASE_Y - 40} L80,${BASE_Y - 62} L150,${BASE_Y - 48} L260,${BASE_Y - 80} L340,${BASE_Y - 52} L470,${BASE_Y - 66} L600,${BASE_Y - 44} L700,${BASE_Y - 70} L820,${BASE_Y - 50} L1000,${BASE_Y - 64} L1110,${BASE_Y - 48} L1230,${BASE_Y - 76} L1350,${BASE_Y - 54} L1480,${BASE_Y - 68} L1600,${BASE_Y - 46} L1700,${BASE_Y - 58} H${W + BLEED} V${H} H${-BLEED} Z`} fill="url(#sp-ridge)" />
+      <path d={`M${-BLEED},${BASE_Y - 24} H-700 Q-540,${BASE_Y - 40} -380,${BASE_Y - 22} Q-160,${BASE_Y + 5} 0,${BASE_Y - 20} Q160,${BASE_Y - 45} 360,${BASE_Y - 20} T1000,${BASE_Y - 28} Q1200,${BASE_Y - 40} 1380,${BASE_Y - 22} T1700,${BASE_Y - 26} H${W + BLEED} V${H} H${-BLEED} Z`} fill="#5a606b" />
       <rect x={-BLEED} y={BASE_Y - 10} width={W + 2 * BLEED} height={H - BASE_Y + 10 + BLEED} fill="url(#sp-ground)" />
-      {[[660, 530, 26], [90, 522, 34], [470, 548, 20], [930, 505, 18]].map(([cx, cy, rx], i) => (
+      {[[660, 530, 26], [90, 522, 34], [470, 548, 20], [930, 505, 18], [-280, 526, 28], [-560, 540, 18], [1290, 518, 30], [1560, 534, 20]].map(([cx, cy, rx], i) => (
         <g key={i}>
           <ellipse cx={cx} cy={cy} rx={rx} ry={rx * 0.22} fill="#24282f" />
           <path d={`M${cx - rx},${cy} A${rx},${rx * 0.22} 0 0 0 ${cx + rx},${cy}`} stroke="#9aa1ad" strokeWidth="1" fill="none" opacity="0.5" />
+        </g>
+      ))}
+      {/* distant relay antennas, silhouettes only, for the side bleed */}
+      {[[-430, 1], [1450, 0.75]].map(([x, k]) => (
+        <g key={x} transform={`translate(${x},${BASE_Y - 8}) scale(${k})`} stroke={STEEL_DARK} strokeWidth="2" fill="none">
+          <path d="M-10,0 L0,-46 L10,0 M-6,-18 H6 M0,-46 V-54" />
+          <path d="M-12,-62 A14,14 0 0 0 10,-48" fill={STEEL_DARK} />
+          <circle cx="0" cy="-56" r="1.6" fill="#ff5a3d" stroke="none" />
         </g>
       ))}
       <Rocket progress={progress} />

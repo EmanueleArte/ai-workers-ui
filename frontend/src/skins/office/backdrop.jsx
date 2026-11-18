@@ -4,7 +4,7 @@ import { BLEED } from '../shared.jsx';
 const W = 1000, H = 560, BASE_Y = 470;
 const PILE_X = 130, PILE_ROWS = 7, FOLDER_W = 26, FOLDER_H = 9;
 const PILE_TOTAL = (PILE_ROWS * (PILE_ROWS + 1)) / 2;
-const RACK_X = 790, RACK_W = 110, UNIT_H = 24, UNITS = 12;
+const RACK_X = 825, RACK_W = 110, UNIT_H = 24, UNITS = 12;
 
 // palette: warm grey studio, oak desk, navy hardware, one Maidaive orange
 const ORANGE = '#f97316', NAVY = '#0f172a', OAK = '#a67c52', OAK_DARK = '#6b4a2e';
@@ -111,8 +111,8 @@ export const Backdrop = React.memo(function Backdrop({ progress }) {
         </linearGradient>
       </defs>
       <rect x={-BLEED} y={-BLEED} width={W + 2 * BLEED} height={H + 2 * BLEED} fill="url(#of-wall)" />
-      {/* windows with skyline */}
-      {[40, 260, 480].map((x) => (
+      {/* windows with skyline; the outer ones fill the widened viewBox, skipping the sign/rack column */}
+      {[-620, -400, -180, 40, 260, 480, 1140, 1360, 1580].map((x) => (
         <g key={x}>
           <rect x={x} y="40" width="190" height="210" fill="url(#of-glass)" />
           <path d={`M${x + 4},250 v-70 h30 v-40 h25 v60 h30 v-90 h28 v100 h22 v-50 h35 v90 Z`} fill="#6f86a0" opacity="0.55" />
@@ -139,7 +139,7 @@ export const Backdrop = React.memo(function Backdrop({ progress }) {
       <rect x={-BLEED} y={BASE_Y - 10} width={W + 2 * BLEED} height={H - BASE_Y + 10 + BLEED} fill="url(#of-floor)" />
       <rect x={-BLEED} y={BASE_Y - 10} width={W + 2 * BLEED} height="4" fill="#57534e" />
       <g stroke="#7c766b" strokeWidth="1" opacity="0.35">
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => <line key={i} x1={i * 110 - 40} y1={H} x2={i * 100 + 10} y2={BASE_Y - 6} />)}
+        {Array.from({ length: 24 }, (_, k) => k - 7).map((i) => <line key={i} x1={i * 110 - 40} y1={H} x2={i * 100 + 10} y2={BASE_Y - 6} />)}
       </g>
       <Rack progress={progress} />
       <Backlog progress={progress} />
