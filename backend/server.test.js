@@ -37,6 +37,11 @@ test('register, report, done lifecycle', async () => {
     assert.strictEqual(s.tokensUsed, 650, 'promotion does not double count tokens');
     assert.strictEqual((await post('/report', { name: 'Tiye', role: 'worker' })).status, 400, 'no demotion');
 
+    assert.strictEqual((await post('/register', { name: 'Tiye#worker' })).status, 400, '# reserved');
+    await post('/report', { name: 'Tiye', tokensUsed: 1e308 });
+    s = await (await fetch(base + '/state')).json();
+    assert.strictEqual(s.tokensUsed, 650, 'huge tokensUsed ignored, total stays a number');
+
     await fetch(base + '/state', { method: 'DELETE' });
     s = await (await fetch(base + '/state')).json();
     assert.strictEqual(s.workers.length, 0);

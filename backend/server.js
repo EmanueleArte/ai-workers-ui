@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 
 const PORT = Number(process.env.PORT) || 8765;
-const TOKEN_BUDGET = Number(process.env.TOKEN_BUDGET) || 1_000_000;
+const TOKEN_BUDGET = Math.max(1, Number(process.env.TOKEN_BUDGET) || 1_000_000);
 const ROLES = ['worker', 'orchestrator'];
 const STATUSES = ['working', 'done'];
 
@@ -19,7 +19,8 @@ function createApp() {
   app.post('/api/register', (req, res) => {
     const name = cleanName(req.body?.name);
     const role = req.body?.role ?? 'worker';
-    if (!name || name.length > 40) return res.status(400).json({ error: 'name required, max 40 chars' });
+    // '#' is reserved for the retired copy key of a promoted worker
+    if (!name || name.length > 40 || name.includes('#')) return res.status(400).json({ error: 'name required, max 40 chars, no #' });
     if (!ROLES.includes(role)) return res.status(400).json({ error: `role must be one of ${ROLES}` });
     if (workers.has(name.toLowerCase())) return res.status(409).json({ error: 'name already taken, choose another' });
     const now = Date.now();
@@ -47,8 +48,9 @@ function createApp() {
       Object.assign(w, { role, startedAt: now });
     }
     if (message !== undefined) w.message = String(message).slice(0, 500);
-    if (Number.isFinite(tokensUsed) && tokensUsed >= 0) w.tokensUsed = tokensUsed;
-    if (Number.isFinite(lim) && lim > 0) tokenLimit = lim;
+    // capped so the sum over workers stays finite (Infinity would serialize as null)
+    if (Number.isFinite(tokensUsed) && tokensUsed >= 0 && tokensUsed <= Number.MAX_SAFE_INTEGER) w.tokensUsed = tokensUsed;
+    if (Number.isFinite(lim) && lim > 0 && lim <= Number.MAX_SAFE_INTEGER) tokenLimit = lim;
     w.status = status;
     w.updatedAt = Date.now();
     res.json({ ok: true });
@@ -75,7 +77,8 @@ function createApp() {
 }
 
 if (require.main === module) {
-  createApp().listen(PORT, () => console.log(`ai-workers-ui on http://localhost:${PORT}`));
+  // localhost by default: the API has no auth. Docker sets HOST=0.0.0.0.
+  createApp().listen(PORT, process.env.HOST || '127.0.0.1', () => console.log(`ai-workers-ui on http://localhost:${PORT}`));
 }
 
 module.exports = { createApp };
