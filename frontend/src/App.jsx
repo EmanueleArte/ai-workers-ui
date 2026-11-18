@@ -14,6 +14,7 @@ function readPanel() {
 
 export default function App() {
   const [panelOpen, setPanelOpen] = useState(readPanel);
+  const [selected, setSelected] = useState({ key: null, n: 0 });
   const toggleRef = useRef(null);
   const [state, setState] = useState(EMPTY);
   const [offline, setOffline] = useState(false);
@@ -56,6 +57,11 @@ export default function App() {
   const setPanel = (open) => {
     setPanelOpen(open);
     try { localStorage.setItem('agentsPanel', open ? 'open' : 'closed'); } catch { /* storage blocked: keep in memory */ }
+  };
+  // n bumps on every click so re-clicking the same agent scrolls to it again
+  const selectAgent = (w) => {
+    setSelected((s) => ({ key: `${w.name}:${w.role}`, n: s.n + 1 }));
+    setPanel(true);
   };
   const closePanel = useCallback(() => {
     setPanel(false);
@@ -121,8 +127,8 @@ export default function App() {
           <button type="button" className="btn-danger" onClick={reset}>Reset sessione</button>
         </div>
       </header>
-      <Scene state={state} now={now - clockSkew} />
-      <AgentsPanel id="agents-panel" open={panelOpen} onClose={closePanel} workers={state.workers} tokensUsed={state.tokensUsed} />
+      <Scene state={state} now={now - clockSkew} onSelect={selectAgent} />
+      <AgentsPanel id="agents-panel" open={panelOpen} onClose={closePanel} workers={state.workers} tokensUsed={state.tokensUsed} selected={selected} />
     </div>
   );
 }

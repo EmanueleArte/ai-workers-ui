@@ -29,7 +29,7 @@ export function assignNames(workers) {
   return out;
 }
 
-export default function OfficeScene({ state, now }) {
+export default function OfficeScene({ state, now, onSelect }) {
   const managers = state.workers.filter((w) => w.role === 'orchestrator')
     .sort((a, b) => a.startedAt - b.startedAt);
   const names = assignNames(state.workers);
@@ -54,7 +54,7 @@ export default function OfficeScene({ state, now }) {
     <svg ref={ref} className="scene" viewBox={viewBox} preserveAspectRatio="xMidYMid meet" role="img"
       aria-label={`Ufficio Maidaive: ${state.workers.length} dipendenti, rack di produzione al ${Math.round(state.progress * 100)}%`}>
       <Backdrop progress={state.progress} />
-      {figures.map((f) => <g key={`${f.w.name}:${f.w.role}`}>{f.el}</g>)}
+      {figures.map((f) => <g key={`${f.w.name}:${f.w.role}`} className="figure" onClick={() => onSelect?.(f.w)}>{f.el}</g>)}
       {figures.map((f) => <Label key={`${f.w.name}:${f.w.role}`} w={f.shown} x={f.x} y={f.y} now={now} top={f.top * (1 - 0.7 * f.fall)} />)}
       {state.workers.length === 0 && (
         <EmptyState y={300} title="Ufficio vuoto" hint="Nessun dipendente in ufficio. Avvia Claude con la skill ai-workers."

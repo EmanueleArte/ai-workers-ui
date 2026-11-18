@@ -16,9 +16,10 @@ const DoneIcon = () => (
   </svg>
 );
 
-export default function AgentsPanel({ id, open, onClose, workers, tokensUsed }) {
+export default function AgentsPanel({ id, open, onClose, workers, tokensUsed, selected }) {
   const closeRef = useRef(null);
   const mounted = useRef(false);
+  const rowRefs = useRef(new Map());
 
   useEffect(() => {
     // panel restored open on page load: don't steal focus, only on user toggle
@@ -30,6 +31,15 @@ export default function AgentsPanel({ id, open, onClose, workers, tokensUsed }) 
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [open, onClose]);
+
+  // agent clicked in the scene: expand its row, bring it into view, focus it (runs after the open effect)
+  useEffect(() => {
+    const el = selected?.key && rowRefs.current.get(selected.key);
+    if (!el) return;
+    el.open = true;
+    el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    el.querySelector('summary')?.focus({ preventScroll: true });
+  }, [selected?.n]);
 
   const rows = [...workers].sort((a, b) =>
     (a.role === 'orchestrator' ? 0 : 1) - (b.role === 'orchestrator' ? 0 : 1) || a.startedAt - b.startedAt);
@@ -50,9 +60,13 @@ export default function AgentsPanel({ id, open, onClose, workers, tokensUsed }) 
           {rows.map((w) => {
             const acts = [...(w.activities ?? [])].reverse();
             const share = Math.round((w.tokensUsed / total) * 100);
+            const key = `${w.name}:${w.role}`;
             return (
-              <li key={`${w.name}:${w.role}`}>
-                <details className="agent">
+              <li key={key}>
+                <details
+                  className={`agent${selected?.key === key ? ' is-selected' : ''}`}
+                  ref={(el) => (el ? rowRefs.current.set(key, el) : rowRefs.current.delete(key))}
+                >
                   <summary>
                     <span className="agent-name">{w.name}</span>
                     <span className={`tag tag-${w.role}`}>{w.role}</span>

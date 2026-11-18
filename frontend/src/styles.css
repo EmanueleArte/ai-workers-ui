@@ -169,6 +169,8 @@ body {
 .agents-list { list-style: none; margin: 0; padding: var(--s2); overflow-y: auto; flex: 1; display: grid; gap: var(--s1); align-content: start; }
 .agents-empty { margin: 0; padding: var(--s3) var(--s4); color: var(--fg-muted); font-size: 13px; }
 .agent { border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface-2); }
+.agent.is-selected { border-color: var(--accent); }
+.scene .figure { cursor: pointer; }
 .agent summary {
   display: flex; flex-wrap: wrap; align-items: center; gap: 6px var(--s2);
   min-height: 44px; padding: var(--s2) var(--s3); border-radius: var(--r-md);
