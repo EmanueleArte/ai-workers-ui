@@ -207,3 +207,5 @@ body {
 @media (max-width: 600px) {
   .agents { width: 100vw; border-left: 0; }
 }
+.scene .figure:focus { outline: none; }
+.scene .figure:focus-visible { outline: 3px solid #f59e0b; outline-offset: 4px; filter: drop-shadow(0 0 3px #f59e0b); }

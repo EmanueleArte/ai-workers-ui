@@ -67,12 +67,12 @@ Se la dashboard è spenta, Claude salta il reporting senza bloccare il lavoro.
 
 | Metodo | Path | Body | Risposte |
 |---|---|---|---|
-| POST | `/api/register` | `{ name, role: "worker"\|"orchestrator" }` | 201, 400, 409 nome già usato, 429 oltre 500 worker (resetta con DELETE) |
+| POST | `/api/register` | `{ name, role: "worker"\|"orchestrator" }` | 201 `{ ok, name, alias }`, 400, 409 nome già usato, 429 oltre 500 worker (resetta con DELETE) |
 | POST | `/api/report` | `{ name, message?, tokensUsed?, tokenLimit?, status?: "working"\|"done", role?: "orchestrator" }` | 200, 400 (anche cambio ruolo non ammesso), 404 non registrato, 409 già chiuso. `role: "orchestrator"` promuove un worker: il worker collassa e ricompare come orchestratore |
 | GET | `/api/state` | – | `{ workers, tokensUsed, tokenLimit, progress, serverTime }` |
 | DELETE | `/api/state` | – | reset |
 
-Ogni worker in `/api/state` ha `activities: [{ message, at }]` (`at` in ms epoch), dalla più vecchia alla più recente: ogni report con `message` non vuoto aggiunge una voce, si tengono le ultime 100. `message` resta l'ultimo messaggio. Alla promozione la copia ritirata del worker tiene la sua storia, l'orchestratore la continua.
+Ogni worker in `/api/state` ha `alias`, un nome di visualizzazione casuale e unico assegnato alla registrazione (la promozione lo conserva), e `activities: [{ message, at }]` (`at` in ms epoch), dalla più vecchia alla più recente: ogni report con `message` non vuoto aggiunge una voce, si tengono le ultime 100. `message` resta l'ultimo messaggio. Alla promozione la copia ritirata del worker tiene la sua storia, l'orchestratore la continua.
 
 Errori sempre in JSON `{ error }`: body JSON malformato 400, body oltre 32 KB 413.
 

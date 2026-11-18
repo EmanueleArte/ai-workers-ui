@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { skins } from './skins/index.js';
+import { skins, defaultNameOf } from './skins/index.js';
 import AgentsPanel from './components/AgentsPanel.jsx';
 
 const EMPTY = { workers: [], tokensUsed: 0, tokenLimit: 1, progress: 0, serverTime: Date.now() };
@@ -20,7 +20,6 @@ export default function App() {
   const [offline, setOffline] = useState(false);
   const [skinId, setSkinId] = useState(readSkin);
   const [clockSkew, setClockSkew] = useState(0);
-  const [now, setNow] = useState(Date.now());
 
   // poll backend
   useEffect(() => {
@@ -41,32 +40,24 @@ export default function App() {
     return () => { alive = false; clearInterval(id); };
   }, []);
 
-  // animation clock
-  useEffect(() => {
-    let raf;
-    const tick = () => { setNow(Date.now()); raf = requestAnimationFrame(tick); };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
   const changeSkin = (id) => {
     setSkinId(id);
     try { localStorage.setItem('skin', id); } catch { /* storage blocked: keep in memory */ }
   };
 
-  const setPanel = (open) => {
+  const setPanel = useCallback((open) => {
     setPanelOpen(open);
     try { localStorage.setItem('agentsPanel', open ? 'open' : 'closed'); } catch { /* storage blocked: keep in memory */ }
-  };
+  }, []);
   // n bumps on every click so re-clicking the same agent scrolls to it again
-  const selectAgent = (w) => {
+  const selectAgent = useCallback((w) => {
     setSelected((s) => ({ key: `${w.name}:${w.role}`, n: s.n + 1 }));
     setPanel(true);
-  };
+  }, [setPanel]);
   const closePanel = useCallback(() => {
     setPanel(false);
     toggleRef.current?.focus();
-  }, []);
+  }, [setPanel]);
 
   const reset = async () => {
     if (confirm('Cancellare tutti i worker e ricominciare la sessione?')) {
@@ -77,6 +68,7 @@ export default function App() {
   const skin = skins.find((s) => s.id === skinId) || skins[0];
   const active = state.workers.filter((w) => w.status !== 'done').length;
   const Scene = skin.Scene;
+  const nameOf = skin.nameOf || defaultNameOf;
   const pct = Math.round(state.progress * 100);
 
   return (
@@ -127,8 +119,8 @@ export default function App() {
           <button type="button" className="btn-danger" onClick={reset}>Reset sessione</button>
         </div>
       </header>
-      <Scene state={state} now={now - clockSkew} onSelect={selectAgent} />
-      <AgentsPanel id="agents-panel" open={panelOpen} onClose={closePanel} workers={state.workers} tokensUsed={state.tokensUsed} selected={selected} />
+      <Scene state={state} clockSkew={clockSkew} nameOf={nameOf} onSelect={selectAgent} />
+      <AgentsPanel id="agents-panel" open={panelOpen} onClose={closePanel} workers={state.workers} tokensUsed={state.tokensUsed} selected={selected} nameOf={nameOf} />
     </div>
   );
 }

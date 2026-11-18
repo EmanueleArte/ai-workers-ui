@@ -1,11 +1,12 @@
 import React from 'react';
-import { useFillViewBox, hash, workerPose, fallK, Label, EmptyState } from '../shared.jsx';
+import { useFillViewBox, hash, workerPose, fallK, useNow, Label, Figure, EmptyState } from '../shared.jsx';
 import { Backdrop } from './backdrop.jsx';
 import { Worker, Overseer } from './figures.jsx';
 
 const PATH_FROM = 235, PATH_TO = 600;
 
-export default function EgyptScene({ state, now, onSelect }) {
+export default function EgyptScene({ state, clockSkew, nameOf, onSelect }) {
+  const now = useNow(clockSkew);
   const overseers = state.workers.filter((w) => w.role === 'orchestrator')
     .sort((a, b) => a.startedAt - b.startedAt);
 
@@ -25,11 +26,11 @@ export default function EgyptScene({ state, now, onSelect }) {
   const [ref, viewBox] = useFillViewBox();
 
   return (
-    <svg ref={ref} className="scene" viewBox={viewBox} preserveAspectRatio="xMidYMid meet" role="img"
+    <svg ref={ref} className="scene" viewBox={viewBox} preserveAspectRatio="xMidYMid meet" role="group"
       aria-label={`Cantiere della piramide: ${state.workers.length} lavoratori, piramide al ${Math.round(state.progress * 100)}%`}>
       <Backdrop progress={state.progress} />
-      {figures.map((f) => <g key={`${f.w.name}:${f.w.role}`} className="figure" onClick={() => onSelect?.(f.w)}>{f.el}</g>)}
-      {figures.map((f) => <Label key={`${f.w.name}:${f.w.role}`} w={f.w} x={f.x} y={f.y} now={now} top={f.top * (1 - 0.7 * f.fall)} />)}
+      {figures.map((f) => <Figure key={`${f.w.name}:${f.w.role}`} w={f.w} name={nameOf(f.w)} onSelect={onSelect}>{f.el}</Figure>)}
+      {figures.map((f) => <Label key={`${f.w.name}:${f.w.role}`} w={f.w} name={nameOf(f.w)} x={f.x} y={f.y} now={now} top={f.top * (1 - 0.7 * f.fall)} />)}
       {state.workers.length === 0 && (
         <EmptyState y={190} title="Il cantiere riposa" hint="Nessun lavoratore al cantiere. Avvia Claude con la skill ai-workers."
           bg="#fbefd6" border="#a8783f" ink="#4a2e14" sub="#7a5630" font="Georgia, 'Times New Roman', serif" />

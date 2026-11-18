@@ -1,4 +1,5 @@
 const express = require('express');
+const { randomInt } = require('crypto');
 const path = require('path');
 
 const PORT = Number(process.env.PORT) || 8765;
@@ -7,6 +8,14 @@ const ROLES = ['worker', 'orchestrator'];
 const STATUSES = ['working', 'done'];
 const MAX_WORKERS = 500;
 const MAX_ACTIVITIES = 100;
+const ALIASES = [
+  'Alessandro Barducci', 'Alessandro Boschetti', 'Giacomo Dradi', 'Andrea Procucci', 'Alessandro Di Roma',
+  'Andrea Latino', 'Emanuele Pancisi', 'Enrico Valentini', 'Giacomo Tontini', 'Giacomo Venturi',
+  'Giorgia Mossette', 'Giovanna Messa Chiarion', 'Leonardo Roselli', 'Linda Vitali', 'Lorenzo Domenico Magnani',
+  'Manuele Bagnolini', 'Marco Esopi', 'Marco Raggini', 'Marco Treossi', 'Matteo Venditto',
+  'Raffaele Balzani', 'Sebastiano Gaudeano', 'Emanuele Artegiani', 'Pablo Vargas', 'Sebastian Grateron',
+  'Pedro Vergas', 'Jacopo Gambi', 'Alessandro Maretti',
+];
 
 function createApp({ maxWorkers = MAX_WORKERS } = {}) {
   // shortcut: state is in memory, lost on restart; add a store if history must survive.
@@ -27,10 +36,18 @@ function createApp({ maxWorkers = MAX_WORKERS } = {}) {
     if (workers.has(name.toLowerCase())) return res.status(409).json({ error: 'name already taken, choose another' });
     if (workers.size >= maxWorkers) return res.status(429).json({ error: `too many workers (max ${maxWorkers}), reset the state` });
     const now = Date.now();
+    const taken = new Set([...workers.values()].map((w) => w.alias.toLowerCase()));
+    const free = ALIASES.filter((a) => !taken.has(a.toLowerCase()));
+    let alias = free.length ? free[randomInt(free.length)] : ALIASES[randomInt(ALIASES.length)];
+    // shortcut: pool exhausted -> random alias plus the smallest free numeric suffix; O(n) scan, fine under the worker cap.
+    if (!free.length) {
+      const base = alias;
+      for (let k = 2; taken.has(alias.toLowerCase()); k++) alias = `${base} ${k}`;
+    }
     workers.set(name.toLowerCase(), {
-      name, role, status: 'working', message: '', activities: [], tokensUsed: 0, startedAt: now, updatedAt: now,
+      name, alias, role, status: 'working', message: '', activities: [], tokensUsed: 0, startedAt: now, updatedAt: now,
     });
-    res.status(201).json({ ok: true, name });
+    res.status(201).json({ ok: true, name, alias });
   });
 
   app.post('/api/report', (req, res) => {
@@ -92,4 +109,4 @@ if (require.main === module) {
   createApp().listen(PORT, process.env.HOST || '127.0.0.1', () => console.log(`ai-workers-ui on http://localhost:${PORT}`));
 }
 
-module.exports = { createApp };
+module.exports = { createApp, ALIASES };

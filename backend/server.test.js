@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { createApp } = require('./server');
+const { createApp, ALIASES } = require('./server');
 
 test('register, report, done lifecycle', async () => {
   const server = createApp().listen(0);
@@ -107,4 +107,15 @@ test('activities history', () => withServer({}, async ({ post, state }) => {
   assert.strictEqual(w.activities.length, 100);
   assert.strictEqual(w.activities[99].message, 'm119');
   assert.strictEqual(w.message, 'm119');
+}));
+
+test('aliases are random-from-pool and unique', () => withServer({ maxWorkers: 100 }, async ({ post, state }) => {
+  const got = [];
+  for (let i = 0; i < ALIASES.length; i++) got.push((await (await post('/register', { name: `W${i}` })).json()).alias);
+  assert.strictEqual(new Set(got).size, ALIASES.length);
+  assert.ok(got.every((a) => ALIASES.includes(a)));
+  const extra = (await (await post('/register', { name: 'Extra' })).json()).alias;
+  assert.ok(!got.includes(extra) && /^.+ \d+$/.test(extra), 'suffixed when the pool is exhausted');
+  const s = await state();
+  assert.strictEqual(s.workers.find((w) => w.name === 'Extra').alias, extra);
 }));

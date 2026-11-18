@@ -5,4 +5,5 @@ services:
       - "127.0.0.1:8765:8765"   # localhost only: the API has no auth
     environment:
       - TOKEN_BUDGET=1000000    # default session token budget (a report can override it)
+    init: true                # node is not PID 1: docker stop sends SIGTERM to a real init
     restart: unless-stopped

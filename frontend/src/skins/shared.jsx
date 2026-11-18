@@ -9,6 +9,31 @@ const TRIP_MS = 9000;          // full trip pile -> build site -> pile
 const BUBBLE_MS = 10000;       // how long a new message stays visible
 const FALL_MS = 900;
 
+// Animation clock: re-renders only the scene (~60/s), not the whole app. skew = client - server clock.
+export function useNow(skew) {
+  const [t, setT] = useState(Date.now());
+  useEffect(() => {
+    let raf;
+    const tick = () => { setT(Date.now()); raf = requestAnimationFrame(tick); };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  return t - skew;
+}
+
+// Clickable, keyboard-focusable figure.
+export function Figure({ w, name, onSelect, children }) {
+  return (
+    <g className="figure" tabIndex={0} role="button" aria-label={`${name}, ${w.status === 'done' ? 'chiuso' : 'attivo'}`}
+      onClick={() => onSelect?.(w)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect?.(w); }
+      }}>
+      {children}
+    </g>
+  );
+}
+
 // viewBox that keeps the whole 1000x560 content visible and centred, grown along one axis
 // to match the element's aspect so the scene fills its box with no letterbox bands.
 export function useFillViewBox() {
@@ -66,12 +91,12 @@ export function EmptyState({ title, hint, y = 200, bg, border, ink, sub, font })
   );
 }
 
-export function Label({ w, x, y, now, top }) {
+export function Label({ w, name, x, y, now, top }) {
   const showBubble = w.message && now - w.updatedAt < BUBBLE_MS;
   return (
     <g>
       <text x={x} y={y + top} textAnchor="middle" className={`name${w.status === 'done' ? ' done' : ''}`}>
-        {w.status === 'done' ? `† ${w.name}` : w.name}
+        {w.status === 'done' ? `† ${name}` : name}
       </text>
       {showBubble && (
         <foreignObject x={x - 90} y={y + top - 76} width="180" height="64">

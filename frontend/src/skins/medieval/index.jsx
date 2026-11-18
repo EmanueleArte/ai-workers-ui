@@ -1,11 +1,12 @@
 import React from 'react';
-import { useFillViewBox, hash, workerPose, fallK, Label, EmptyState } from '../shared.jsx';
+import { useFillViewBox, hash, workerPose, fallK, useNow, Label, Figure, EmptyState } from '../shared.jsx';
 import { Backdrop } from './backdrop.jsx';
 import { Peasant, MasterBuilder } from './figures.jsx';
 
 const PATH_FROM = 235, PATH_TO = 600;
 
-export default function MedievalScene({ state, now, onSelect }) {
+export default function MedievalScene({ state, clockSkew, nameOf, onSelect }) {
+  const now = useNow(clockSkew);
   const controllers = state.workers.filter((w) => w.role === 'orchestrator')
     .sort((a, b) => a.startedAt - b.startedAt);
 
@@ -25,11 +26,11 @@ export default function MedievalScene({ state, now, onSelect }) {
   const [ref, viewBox] = useFillViewBox();
 
   return (
-    <svg ref={ref} className="scene" viewBox={viewBox} preserveAspectRatio="xMidYMid meet" role="img"
+    <svg ref={ref} className="scene" viewBox={viewBox} preserveAspectRatio="xMidYMid meet" role="group"
       aria-label={`Cantiere del castello: ${state.workers.length} contadini, torre costruita al ${Math.round(state.progress * 100)}%`}>
       <Backdrop progress={state.progress} />
-      {figures.map((f) => <g key={`${f.w.name}:${f.w.role}`} className="figure" onClick={() => onSelect?.(f.w)}>{f.el}</g>)}
-      {figures.map((f) => <Label key={`${f.w.name}:${f.w.role}`} w={f.w} x={f.x} y={f.y} now={now} top={f.top * (1 - 0.7 * f.fall)} />)}
+      {figures.map((f) => <Figure key={`${f.w.name}:${f.w.role}`} w={f.w} name={nameOf(f.w)} onSelect={onSelect}>{f.el}</Figure>)}
+      {figures.map((f) => <Label key={`${f.w.name}:${f.w.role}`} w={f.w} name={nameOf(f.w)} x={f.x} y={f.y} now={now} top={f.top * (1 - 0.7 * f.fall)} />)}
       {state.workers.length === 0 && (
         <EmptyState y={200} title="Il cantiere attende braccia" hint="Nessun contadino al cantiere. Avvia Claude con la skill ai-workers."
           bg="#f3e6c4" border="#7a4a22" ink="#3a2614" sub="#6b4a2a" font="Georgia, 'Palatino Linotype', serif" />

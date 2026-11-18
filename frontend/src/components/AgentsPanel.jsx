@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 
 const time = (at) => new Date(at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
@@ -16,7 +16,7 @@ const DoneIcon = () => (
   </svg>
 );
 
-export default function AgentsPanel({ id, open, onClose, workers, tokensUsed, selected }) {
+export default memo(function AgentsPanel({ id, open, onClose, workers, tokensUsed, selected, nameOf }) {
   const closeRef = useRef(null);
   const mounted = useRef(false);
   const rowRefs = useRef(new Map());
@@ -68,7 +68,7 @@ export default function AgentsPanel({ id, open, onClose, workers, tokensUsed, se
                   ref={(el) => (el ? rowRefs.current.set(key, el) : rowRefs.current.delete(key))}
                 >
                   <summary>
-                    <span className="agent-name">{w.name}</span>
+                    <span className="agent-name">{nameOf(w)}</span>
                     <span className={`tag tag-${w.role}`}>{w.role}</span>
                     <span className={`tag tag-${w.status}`}>{w.status === 'working' ? 'al lavoro' : 'finito'}</span>
                     <span className="agent-tokens num">{w.tokensUsed.toLocaleString()} <b>{share}%</b></span>
@@ -94,4 +94,4 @@ export default function AgentsPanel({ id, open, onClose, workers, tokensUsed, se
       )}
     </aside>
   );
-}
+});
