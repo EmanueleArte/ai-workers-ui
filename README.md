@@ -8,7 +8,7 @@ Skin disponibile: **Egitto**
 - gli **orchestratori** sono supervisori con la frusta;
 - la **pila di pietre** sono i token rimasti: più token si usano, più la pila cala e la piramide cresce (100% = budget esaurito, la cima diventa d'oro);
 - quando un worker si chiude, il suo omino **crolla a terra** (nome con `†`);
-- ogni nuovo messaggio appare in un **fumetto** per 30 secondi.
+- ogni nuovo messaggio appare in un **fumetto** per 10 secondi.
 
 ## 1. Avvio della dashboard
 
@@ -20,7 +20,7 @@ docker compose up -d --build
 
 Apri http://localhost:8765. Per fermarla: `docker compose down`.
 
-Il budget token di default è 1.000.000; si cambia in `docker-compose.yml` (`TOKEN_BUDGET`) oppure inviando `tokenLimit` in un report.
+Il budget token di default è 1.000.000; si cambia in `docker-compose.yml` (`TOKEN_BUDGET`) oppure inviando `tokenLimit` in un report di un orchestratore (dai worker viene ignorato).
 Il pulsante **Reset sessione** cancella tutti i worker (lo stato è in memoria: si azzera anche al riavvio del container).
 
 ## 2. Installazione della skill
@@ -67,10 +67,14 @@ Se la dashboard è spenta, Claude salta il reporting senza bloccare il lavoro.
 
 | Metodo | Path | Body | Risposte |
 |---|---|---|---|
-| POST | `/api/register` | `{ name, role: "worker"\|"orchestrator" }` | 201, 400, 409 nome già usato |
+| POST | `/api/register` | `{ name, role: "worker"\|"orchestrator" }` | 201 `{ ok, name, alias }`, 400, 409 nome già usato, 429 oltre 500 worker (resetta con DELETE) |
 | POST | `/api/report` | `{ name, message?, tokensUsed?, tokenLimit?, status?: "working"\|"done", role?: "orchestrator" }` | 200, 400 (anche cambio ruolo non ammesso), 404 non registrato, 409 già chiuso. `role: "orchestrator"` promuove un worker: il worker collassa e ricompare come orchestratore |
 | GET | `/api/state` | – | `{ workers, tokensUsed, tokenLimit, progress, serverTime }` |
 | DELETE | `/api/state` | – | reset |
+
+Ogni worker in `/api/state` ha `alias`, un nome di visualizzazione casuale e unico assegnato alla registrazione (la promozione lo conserva), e `activities: [{ message, at }]` (`at` in ms epoch), dalla più vecchia alla più recente: ogni report con `message` non vuoto aggiunge una voce, si tengono le ultime 100. `message` resta l'ultimo messaggio. Alla promozione la copia ritirata del worker tiene la sua storia, l'orchestratore la continua.
+
+Errori sempre in JSON `{ error }`: body JSON malformato 400, body oltre 32 KB 413.
 
 Prova manuale:
 

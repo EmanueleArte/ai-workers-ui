@@ -1,12 +1,12 @@
 import React from 'react';
-import { hash, workerPose, fallK, Label } from './egypt.jsx';
-import { Backdrop } from './space/backdrop.jsx';
-import { Astronaut, Controller } from './space/figures.jsx';
+import { useFillViewBox, hash, workerPose, fallK, useNow, Label, Figure, EmptyState } from '../shared.jsx';
+import { Backdrop } from './backdrop.jsx';
+import { Astronaut, Controller } from './figures.jsx';
 
-const W = 1000, H = 560;
 const PATH_FROM = 235, PATH_TO = 600;
 
-export default function SpaceScene({ state, now }) {
+export default function SpaceScene({ state, clockSkew, nameOf, onSelect }) {
+  const now = useNow(clockSkew);
   const controllers = state.workers.filter((w) => w.role === 'orchestrator')
     .sort((a, b) => a.startedAt - b.startedAt);
 
@@ -23,16 +23,17 @@ export default function SpaceScene({ state, now }) {
     return { w, ...pose, fall, top: -80, el: <Astronaut {...pose} carry={pose.carry && fall === 0} t={now + hash(w.name)} fall={fall} /> };
   }).sort((a, b) => a.y - b.y);
 
+  const [ref, viewBox] = useFillViewBox();
+
   return (
-    <svg className="scene" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="img"
+    <svg ref={ref} className="scene" viewBox={viewBox} preserveAspectRatio="xMidYMid meet" role="group"
       aria-label={`Base di lancio: ${state.workers.length} astronauti, razzo assemblato al ${Math.round(state.progress * 100)}%`}>
       <Backdrop progress={state.progress} />
-      {figures.map((f) => <g key={`${f.w.name}:${f.w.role}`}>{f.el}</g>)}
-      {figures.map((f) => <Label key={`${f.w.name}:${f.w.role}`} w={f.w} x={f.x} y={f.y} now={now} top={f.top * (1 - 0.7 * f.fall)} />)}
+      {figures.map((f) => <Figure key={`${f.w.name}:${f.w.role}`} w={f.w} name={nameOf(f.w)} onSelect={onSelect}>{f.el}</Figure>)}
+      {figures.map((f) => <Label key={`${f.w.name}:${f.w.role}`} w={f.w} name={nameOf(f.w)} x={f.x} y={f.y} now={now} top={f.top * (1 - 0.7 * f.fall)} />)}
       {state.workers.length === 0 && (
-        <text x={W / 2} y={200} textAnchor="middle" fill="#e8eefc" fontSize="18">
-          Nessun astronauta alla base di lancio. Avvia Claude con la skill ai-workers.
-        </text>
+        <EmptyState y={250} title="Base di lancio in silenzio radio" hint="Nessun astronauta alla base di lancio. Avvia Claude con la skill ai-workers."
+          bg="#0b1624" border="#e8742a" ink="#eef1f5" sub="#9fb0c4" font="ui-monospace, 'Cascadia Mono', Consolas, monospace" />
       )}
     </svg>
   );
