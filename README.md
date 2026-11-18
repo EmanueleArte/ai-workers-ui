@@ -8,7 +8,7 @@ Skin disponibile: **Egitto**
 - gli **orchestratori** sono supervisori con la frusta;
 - la **pila di pietre** sono i token rimasti: più token si usano, più la pila cala e la piramide cresce (100% = budget esaurito, la cima diventa d'oro);
 - quando un worker si chiude, il suo omino **crolla a terra** (nome con `†`);
-- ogni nuovo messaggio appare in un **fumetto** per 30 secondi.
+- ogni nuovo messaggio appare in un **fumetto** per 10 secondi.
 
 ## 1. Avvio della dashboard
 

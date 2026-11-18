@@ -1,9 +1,9 @@
-import EgyptScene from './egypt.jsx';
-import SpaceScene from './space.jsx';
-import MedievalScene from './medieval.jsx';
-import OfficeScene from './office.jsx';
+import EgyptScene from './egypt/index.jsx';
+import SpaceScene from './space/index.jsx';
+import MedievalScene from './medieval/index.jsx';
+import OfficeScene from './office/index.jsx';
 
-// Add a skin: create a component ({ state, now }) => <svg/> and register it here.
+// Add a skin: create skins/<id>/index.jsx exporting a component ({ state, now }) => <svg/> and register it here.
 export const skins = [
   { id: 'egypt', label: 'Egitto', Scene: EgyptScene },
   { id: 'space', label: 'Spazio', Scene: SpaceScene },

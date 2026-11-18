@@ -1,7 +1,7 @@
 import React from 'react';
-import { hash, workerPose, fallK, Label } from './egypt.jsx';
-import { Backdrop } from './medieval/backdrop.jsx';
-import { Peasant, MasterBuilder } from './medieval/figures.jsx';
+import { hash, workerPose, fallK, Label, EmptyState } from '../shared.jsx';
+import { Backdrop } from './backdrop.jsx';
+import { Peasant, MasterBuilder } from './figures.jsx';
 
 const W = 1000, H = 560;
 const PATH_FROM = 235, PATH_TO = 600;
@@ -30,9 +30,8 @@ export default function MedievalScene({ state, now }) {
       {figures.map((f) => <g key={`${f.w.name}:${f.w.role}`}>{f.el}</g>)}
       {figures.map((f) => <Label key={`${f.w.name}:${f.w.role}`} w={f.w} x={f.x} y={f.y} now={now} top={f.top * (1 - 0.7 * f.fall)} />)}
       {state.workers.length === 0 && (
-        <text x={W / 2} y={200} textAnchor="middle" fill="#3b2f1e" fontSize="18">
-          Nessun contadino al cantiere. Avvia Claude con la skill ai-workers.
-        </text>
+        <EmptyState y={200} title="Il cantiere attende braccia" hint="Nessun contadino al cantiere. Avvia Claude con la skill ai-workers."
+          bg="#f3e6c4" border="#7a4a22" ink="#3a2614" sub="#6b4a2a" font="Georgia, 'Palatino Linotype', serif" />
       )}
     </svg>
   );

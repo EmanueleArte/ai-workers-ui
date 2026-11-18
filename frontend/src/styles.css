@@ -1,22 +1,136 @@
 :root {
-  --bg: #1d140b;
-  --fg: #f6e7c8;
-  --accent: #e0a63a;
   color-scheme: dark;
+  /* warm-neutral greys: sit above egypt, space, medieval and office skins */
+  --bg: #16120e;
+  --surface: #211b15;
+  --surface-2: #2b241c;
+  --line: #3a3128;
+  --line-strong: #7a6a58;
+  --fg: #f3ebde;
+  --fg-muted: #b3a593;
+  --accent: #e0a63a;
+  --accent-ink: #1e1407;
+  --ok: #7cc48a;
+  --danger: #f0846f;
+  --danger-bg: #3a1d17;
+
+  --font: 'IBM Plex Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px;
+  --r-sm: 6px; --r-md: 8px; --r-pill: 999px;
+  --ctl-h: 34px;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --dur: 140ms;
 }
+
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, sans-serif; }
-.app { display: flex; flex-direction: column; height: 100vh; }
-.hud { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; padding: 8px 16px; font-size: 14px; }
-.hud h1 { font-size: 18px; margin: 0; color: var(--accent); }
-.hud select, .hud button { background: #3a2a17; color: var(--fg); border: 1px solid var(--accent); border-radius: 4px; padding: 4px 8px; }
-.hud button:focus-visible, .hud select:focus-visible { outline: 2px solid var(--accent); }
-.offline { color: #ff7a6b; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 400 14px/1.4 var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+.app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* HUD */
+.hud {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3) var(--s5);
+  padding: var(--s3) var(--s4);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.hud-title {
+  margin: 0; font-size: 15px; font-weight: 600; letter-spacing: .01em;
+  display: flex; align-items: center; gap: var(--s2);
+}
+.hud-title::before {
+  content: ''; width: 10px; height: 10px; border-radius: 2px;
+  background: var(--accent); transform: rotate(45deg);
+}
+
+.hud-tokens { display: grid; gap: 6px; flex: 1 1 220px; min-width: 0; max-width: 360px; }
+.hud-tokens-label {
+  display: flex; justify-content: space-between; gap: var(--s2);
+  font-size: 12px; color: var(--fg-muted);
+}
+.hud-tokens-label .num { color: var(--fg); font-size: 12px; white-space: nowrap; }
+.hud-tokens-label b { color: var(--accent); font-weight: 500; }
+.meter {
+  height: 6px; border-radius: var(--r-pill); overflow: hidden;
+  background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line);
+}
+.meter > span {
+  display: block; height: 100%; border-radius: inherit; background: var(--accent);
+  transition: width 400ms var(--ease), background-color var(--dur);
+}
+.meter.is-high > span { background: var(--danger); }
+
+.hud-stats { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 28px; padding: 0 10px; border-radius: var(--r-pill);
+  background: var(--surface-2); border: 1px solid var(--line);
+  font-size: 12px; color: var(--fg-muted); white-space: nowrap;
+}
+.chip b { color: var(--fg); font-weight: 500; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--fg-muted); }
+.dot-live { background: var(--ok); box-shadow: 0 0 0 3px rgb(124 196 138 / .18); }
+.chip-offline { color: var(--danger); background: var(--danger-bg); border-color: rgb(240 132 111 / .4); }
+.chip-offline::before { content: '!'; font-weight: 600; }
+
+.hud-actions { display: flex; align-items: center; gap: var(--s2); margin-left: auto; }
+.field { display: inline-flex; align-items: center; gap: var(--s2); font-size: 12px; color: var(--fg-muted); }
+
+.hud select, .hud button {
+  height: var(--ctl-h); padding: 0 var(--s3);
+  font: 500 13px var(--font); color: var(--fg);
+  background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: var(--r-md);
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.hud select {
+  appearance: none; padding-right: 30px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--fg-muted) 50%), linear-gradient(135deg, var(--fg-muted) 50%, transparent 50%);
+  background-position: right 15px center, right 10px center;
+  background-size: 5px 5px; background-repeat: no-repeat;
+}
+.hud select option { background: var(--surface); color: var(--fg); }
+.hud select:hover { border-color: var(--fg-muted); }
+
+.hud .btn-danger { color: var(--danger); background: transparent; border-color: rgb(240 132 111 / .8); }
+.hud .btn-danger:hover { background: var(--danger-bg); border-color: var(--danger); }
+.hud button:active { transform: translateY(1px) scale(.98); }
+
+.hud select:focus-visible, .hud button:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .hud { gap: var(--s2) var(--s3); padding: var(--s2) var(--s3); }
+  .hud-tokens { flex-basis: 100%; max-width: none; order: 3; }
+  .hud-stats { order: 2; margin-left: auto; }
+  .hud-actions { order: 4; width: 100%; margin-left: 0; }
+  .field { flex: 1; }
+  .field select { flex: 1; min-width: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}
+
+/* scene + skin-shared classes */
 .scene { flex: 1; width: 100%; min-height: 0; display: block; }
 .bubble {
-  background: #fffaf0; color: #2b1d0e; border: 2px solid #5a3d1c; border-radius: 10px;
-  padding: 4px 8px; font-size: 11px; line-height: 1.25; text-align: center;
+  background: #fffdf7; color: #1f1710;
+  border: 1px solid rgb(31 23 16 / .28); border-radius: 8px;
+  box-shadow: 0 1px 0 rgb(31 23 16 / .18), 0 4px 10px rgb(0 0 0 / .22);
+  padding: 4px 8px; font: 500 11px/1.3 var(--font); text-align: center;
   display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
 }
-.name { font: bold 11px system-ui, sans-serif; paint-order: stroke; stroke: #2b1d0e; stroke-width: 3px; fill: #fff; }
-.name.done { fill: #b9a98e; }
+.name {
+  font: 600 11px var(--font); letter-spacing: .02em;
+  paint-order: stroke; stroke: #14100c; stroke-width: 3.5px; stroke-linejoin: round;
+  fill: #fff;
+}
+.name.done { fill: #b8ab98; font-weight: 500; }

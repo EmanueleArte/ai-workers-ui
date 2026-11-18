@@ -1,7 +1,7 @@
 import React from 'react';
-import { hash, workerPose, fallK, Label } from './egypt.jsx';
-import { Backdrop } from './space/backdrop.jsx';
-import { Astronaut, Controller } from './space/figures.jsx';
+import { hash, workerPose, fallK, Label, EmptyState } from '../shared.jsx';
+import { Backdrop } from './backdrop.jsx';
+import { Astronaut, Controller } from './figures.jsx';
 
 const W = 1000, H = 560;
 const PATH_FROM = 235, PATH_TO = 600;
@@ -30,9 +30,8 @@ export default function SpaceScene({ state, now }) {
       {figures.map((f) => <g key={`${f.w.name}:${f.w.role}`}>{f.el}</g>)}
       {figures.map((f) => <Label key={`${f.w.name}:${f.w.role}`} w={f.w} x={f.x} y={f.y} now={now} top={f.top * (1 - 0.7 * f.fall)} />)}
       {state.workers.length === 0 && (
-        <text x={W / 2} y={200} textAnchor="middle" fill="#e8eefc" fontSize="18">
-          Nessun astronauta alla base di lancio. Avvia Claude con la skill ai-workers.
-        </text>
+        <EmptyState y={250} title="Base di lancio in silenzio radio" hint="Nessun astronauta alla base di lancio. Avvia Claude con la skill ai-workers."
+          bg="#0b1624" border="#e8742a" ink="#eef1f5" sub="#9fb0c4" font="ui-monospace, 'Cascadia Mono', Consolas, monospace" />
       )}
     </svg>
   );

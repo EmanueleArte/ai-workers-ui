@@ -34,7 +34,7 @@ curl -s -X POST http://localhost:8765/api/report \
   -d '{"name":"Ahmose","message":"Reading auth module to find token bug","tokensUsed":42000}'
 ```
 
-- `message`: one short sentence (max ~150 chars), in the user's language, what you are doing *now*. It appears in a speech bubble for ~30 s.
+- `message`: one short sentence (max ~150 chars), in the user's language, what you are doing *now*. It appears in a speech bubble for ~10 s.
 - `tokensUsed`: your best estimate of the tokens you have consumed so far (cumulative, for you only). The dashboard sums all workers to build the pyramid.
 - `tokenLimit` (optional, send it once, typically the orchestrator): the token budget of the whole session, e.g. `"tokenLimit":1000000`.
 - Do not put secrets, credentials, or personal data in `message`.

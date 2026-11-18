@@ -1,7 +1,7 @@
 import React from 'react';
-import { hash, workerPose, fallK, Label } from './egypt.jsx';
-import { Backdrop } from './office/backdrop.jsx';
-import { Developer, Manager } from './office/figures.jsx';
+import { hash, workerPose, fallK, Label, EmptyState } from '../shared.jsx';
+import { Backdrop } from './backdrop.jsx';
+import { Developer, Manager } from './figures.jsx';
 
 const W = 1000, H = 560;
 const PATH_FROM = 235, PATH_TO = 600;
@@ -56,9 +56,8 @@ export default function OfficeScene({ state, now }) {
       {figures.map((f) => <g key={`${f.w.name}:${f.w.role}`}>{f.el}</g>)}
       {figures.map((f) => <Label key={`${f.w.name}:${f.w.role}`} w={f.shown} x={f.x} y={f.y} now={now} top={f.top * (1 - 0.7 * f.fall)} />)}
       {state.workers.length === 0 && (
-        <text x={W / 2} y={300} textAnchor="middle" fill="#0f172a" fontSize="18">
-          Nessun dipendente in ufficio. Avvia Claude con la skill ai-workers.
-        </text>
+        <EmptyState y={300} title="Ufficio vuoto" hint="Nessun dipendente in ufficio. Avvia Claude con la skill ai-workers."
+          bg="#ffffff" border="#f97316" ink="#0f172a" sub="#475569" font="system-ui, 'Segoe UI', sans-serif" />
       )}
     </svg>
   );
