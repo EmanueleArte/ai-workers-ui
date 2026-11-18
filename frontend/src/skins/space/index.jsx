@@ -1,9 +1,8 @@
 import React from 'react';
-import { hash, workerPose, fallK, Label, EmptyState } from '../shared.jsx';
+import { useFillViewBox, hash, workerPose, fallK, Label, EmptyState } from '../shared.jsx';
 import { Backdrop } from './backdrop.jsx';
 import { Astronaut, Controller } from './figures.jsx';
 
-const W = 1000, H = 560;
 const PATH_FROM = 235, PATH_TO = 600;
 
 export default function SpaceScene({ state, now }) {
@@ -23,8 +22,10 @@ export default function SpaceScene({ state, now }) {
     return { w, ...pose, fall, top: -80, el: <Astronaut {...pose} carry={pose.carry && fall === 0} t={now + hash(w.name)} fall={fall} /> };
   }).sort((a, b) => a.y - b.y);
 
+  const [ref, viewBox] = useFillViewBox();
+
   return (
-    <svg className="scene" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="img"
+    <svg ref={ref} className="scene" viewBox={viewBox} preserveAspectRatio="xMidYMid meet" role="img"
       aria-label={`Base di lancio: ${state.workers.length} astronauti, razzo assemblato al ${Math.round(state.progress * 100)}%`}>
       <Backdrop progress={state.progress} />
       {figures.map((f) => <g key={`${f.w.name}:${f.w.role}`}>{f.el}</g>)}

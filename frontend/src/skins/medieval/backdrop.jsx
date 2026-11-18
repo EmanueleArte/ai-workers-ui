@@ -1,4 +1,5 @@
 import React from 'react';
+import { BLEED } from '../shared.jsx';
 
 const W = 1000, H = 560, BASE_Y = 470;
 const PILE_X = 130, PILE_ROWS = 6, BLK_W = 28, BLK_H = 18;
@@ -85,11 +86,11 @@ function Tree({ x, y, s = 1 }) {
   );
 }
 
-export function Backdrop({ progress }) {
+export const Backdrop = React.memo(function Backdrop({ progress }) {
   return (
     <g>
       <defs>
-        <linearGradient id="md-sky" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="md-sky" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={H}>
           <stop offset="0" stopColor="#6c9cc4" />
           <stop offset="0.6" stopColor="#c9d9dc" />
           <stop offset="1" stopColor="#f2e3c0" />
@@ -99,7 +100,7 @@ export function Backdrop({ progress }) {
           <stop offset="0.25" stopColor="#ffe9a8" stopOpacity="0.8" />
           <stop offset="1" stopColor="#ffe9a8" stopOpacity="0" />
         </radialGradient>
-        <linearGradient id="md-grass" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="md-grass" gradientUnits="userSpaceOnUse" x1="0" y1={BASE_Y - 10} x2="0" y2={H}>
           <stop offset="0" stopColor="#7a9446" />
           <stop offset="1" stopColor="#3f5426" />
         </linearGradient>
@@ -113,7 +114,7 @@ export function Backdrop({ progress }) {
           <stop offset="1" stopColor="#a99c82" />
         </linearGradient>
       </defs>
-      <rect width={W} height={H} fill="url(#md-sky)" />
+      <rect x={-BLEED} y={-BLEED} width={W + 2 * BLEED} height={H + 2 * BLEED} fill="url(#md-sky)" />
       <circle cx="140" cy="110" r="120" fill="url(#md-sun)" />
       <circle cx="140" cy="110" r="26" fill="#fff4d0" />
       <g fill="#fbf6ec" opacity="0.8">
@@ -121,16 +122,16 @@ export function Backdrop({ progress }) {
         <path d="M570,66 q8,-16 28,-12 q12,-14 30,-4 q20,-2 22,14 Z" />
       </g>
       {/* far hills with a distant keep */}
-      <path d={`M0,${BASE_Y - 60} Q140,${BASE_Y - 140} 300,${BASE_Y - 70} T620,${BASE_Y - 80} T1000,${BASE_Y - 90} V${H} H0 Z`} fill="#9fb08e" />
+      <path d={`M${-BLEED},${BASE_Y - 60} H0 Q140,${BASE_Y - 140} 300,${BASE_Y - 70} T620,${BASE_Y - 80} T1000,${BASE_Y - 90} H${W + BLEED} V${H} H${-BLEED} Z`} fill="#9fb08e" />
       <g fill="#8a9a7d">
         <rect x="470" y={BASE_Y - 128} width="26" height="40" />
         <rect x="496" y={BASE_Y - 110} width="40" height="24" />
         <path d={`M470,${BASE_Y - 128} h4 v-5 h5 v5 h5 v-5 h5 v5 h7 v-5 h0`} />
       </g>
-      <path d={`M0,${BASE_Y - 15} Q200,${BASE_Y - 60} 420,${BASE_Y - 20} T1000,${BASE_Y - 25} V${H} H0 Z`} fill="#6f8a47" />
+      <path d={`M${-BLEED},${BASE_Y - 15} H0 Q200,${BASE_Y - 60} 420,${BASE_Y - 20} T1000,${BASE_Y - 25} H${W + BLEED} V${H} H${-BLEED} Z`} fill="#6f8a47" />
       <Tree x={40} y={BASE_Y - 22} s={0.9} /><Tree x={66} y={BASE_Y - 18} s={0.7} />
       <Tree x={640} y={BASE_Y - 22} s={0.8} /><Tree x={960} y={BASE_Y - 24} s={1} />
-      <rect y={BASE_Y - 10} width={W} height={H - BASE_Y + 10} fill="url(#md-grass)" />
+      <rect x={-BLEED} y={BASE_Y - 10} width={W + 2 * BLEED} height={H - BASE_Y + 10 + BLEED} fill="url(#md-grass)" />
       {/* dirt road between quarry and tower */}
       <path d={`M210,${BASE_Y + 12} Q420,${BASE_Y + 2} 640,${BASE_Y + 12} L660,548 Q420,556 190,548 Z`} fill="#9a7444" opacity="0.5" />
       {[260, 330, 410, 480, 560, 300, 520].map((x, i) => <ellipse key={i} cx={x} cy={BASE_Y + 22 + (i % 3) * 18} rx="4" ry="2" fill="#5e4220" opacity="0.5" />)}
@@ -141,4 +142,4 @@ export function Backdrop({ progress }) {
       <Quarry progress={progress} />
     </g>
   );
-}
+});

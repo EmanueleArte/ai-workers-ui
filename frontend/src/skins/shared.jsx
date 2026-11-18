@@ -1,11 +1,33 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 // Helpers shared by every skin: walk path, fall animation, labels and empty state.
-const W = 1000;
+const W = 1000, H = 560;
+// How far backdrops paint outside the 1000x560 box, so a widened/tallened viewBox never shows bare edges.
+export const BLEED = 4000;
 const PATH_FROM = 235, PATH_TO = 600;
 const TRIP_MS = 9000;          // full trip pile -> build site -> pile
 const BUBBLE_MS = 10000;       // how long a new message stays visible
 const FALL_MS = 900;
+
+// viewBox that keeps the whole 1000x560 content visible and centred, grown along one axis
+// to match the element's aspect so the scene fills its box with no letterbox bands.
+export function useFillViewBox() {
+  const ref = useRef(null);
+  const [box, setBox] = useState(`0 0 ${W} ${H}`);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => {
+      const { width, height } = el.getBoundingClientRect();
+      if (width < 1 || height < 1) return; // hidden or not laid out yet
+      const vw = Math.max(W, (H * width) / height), vh = Math.max(H, (W * height) / width);
+      setBox(`${((W - vw) / 2).toFixed(1)} ${((H - vh) / 2).toFixed(1)} ${vw.toFixed(1)} ${vh.toFixed(1)}`);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, box];
+}
 
 export function hash(s) {
   let h = 2166136261;

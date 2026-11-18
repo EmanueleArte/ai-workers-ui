@@ -1,4 +1,5 @@
 import React from 'react';
+import { BLEED } from '../shared.jsx';
 
 const W = 1000, H = 560, BASE_Y = 470;
 const PILE_X = 130, PILE_ROWS = 8, STONE_W = 24, STONE_H = 13;
@@ -60,11 +61,11 @@ function Pyramid({ progress }) {
 }
 
 // Defs here (eg-block, eg-collar, nemes) are also used by the figures.
-export function Backdrop({ progress }) {
+export const Backdrop = React.memo(function Backdrop({ progress }) {
   return (
     <g>
       <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="sky" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={H}>
           <stop offset="0" stopColor="#2c4a5c" />
           <stop offset="0.45" stopColor="#b7774a" />
           <stop offset="0.8" stopColor="#f0b673" />
@@ -76,7 +77,7 @@ export function Backdrop({ progress }) {
           <stop offset="0.4" stopColor="#ffd08a" stopOpacity="0.35" />
           <stop offset="1" stopColor="#ffc879" stopOpacity="0" />
         </radialGradient>
-        <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="sand" gradientUnits="userSpaceOnUse" x1="0" y1={BASE_Y - 10} x2="0" y2={H}>
           <stop offset="0" stopColor="#dfae6b" />
           <stop offset="1" stopColor="#a8723f" />
         </linearGradient>
@@ -98,7 +99,7 @@ export function Backdrop({ progress }) {
           <rect y="2" width="4" height="2" fill="#24599a" />
         </pattern>
       </defs>
-      <rect width={W} height={H} fill="url(#sky)" />
+      <rect x={-BLEED} y={-BLEED} width={W + 2 * BLEED} height={H + 2 * BLEED} fill="url(#sky)" />
       <circle cx="430" cy="250" r="190" fill="url(#eg-sun)" />
       <circle cx="430" cy="250" r="30" fill="#fff4d6" opacity="0.95" />
       {/* distant pyramids in the haze */}
@@ -111,9 +112,9 @@ export function Backdrop({ progress }) {
         <polygon points="150,340 230,410 170,410" />
         <polygon points="640,322 720,405 660,405" />
       </g>
-      <path d={`M0,${BASE_Y - 52} Q180,${BASE_Y - 92} 400,${BASE_Y - 50} T1000,${BASE_Y - 62} V${H} H0 Z`} fill="url(#eg-dune)" opacity="0.9" />
-      <path d={`M0,${BASE_Y - 22} Q260,${BASE_Y - 48} 520,${BASE_Y - 20} T1000,${BASE_Y - 26} V${H} H0 Z`} fill="#dcaa68" />
-      <rect y={BASE_Y - 10} width={W} height={H - BASE_Y + 10} fill="url(#sand)" />
+      <path d={`M${-BLEED},${BASE_Y - 52} H0 Q180,${BASE_Y - 92} 400,${BASE_Y - 50} T1000,${BASE_Y - 62} H${W + BLEED} V${H} H${-BLEED} Z`} fill="url(#eg-dune)" opacity="0.9" />
+      <path d={`M${-BLEED},${BASE_Y - 22} H0 Q260,${BASE_Y - 48} 520,${BASE_Y - 20} T1000,${BASE_Y - 26} H${W + BLEED} V${H} H${-BLEED} Z`} fill="#dcaa68" />
+      <rect x={-BLEED} y={BASE_Y - 10} width={W + 2 * BLEED} height={H - BASE_Y + 10 + BLEED} fill="url(#sand)" />
       {/* trodden track between quarry and pyramid */}
       <path d={`M${PATH_FROM - 20},486 Q${(PATH_FROM + PATH_TO) / 2},478 ${PATH_TO + 30},486 L${PATH_TO + 40},545 Q${(PATH_FROM + PATH_TO) / 2},552 ${PATH_FROM - 30},545 Z`} fill="#8f5f31" opacity="0.14" />
       <g stroke="#8f5f31" strokeWidth="1" opacity="0.25" fill="none" strokeLinecap="round">
@@ -123,4 +124,4 @@ export function Backdrop({ progress }) {
       <Stones progress={progress} />
     </g>
   );
-}
+});

@@ -1,4 +1,5 @@
 import React from 'react';
+import { BLEED } from '../shared.jsx';
 
 const W = 1000, H = 560, BASE_Y = 470;
 const PILE_X = 130, PILE_ROWS = 6, CRATE_W = 28, CRATE_H = 18;
@@ -17,6 +18,10 @@ for (let i = 0, s = 7; i < 110; i++) {
   s = (s * 1103515245 + 12345) % 2147483648;
   STARS.push({ x, y: s % 400, r: 0.4 + (s % 3) * 0.45 });
 }
+
+// shortcut: tiles cover the bleed up to 3 screens sideways and 4 star bands up; beyond that the sky is plain.
+const STAR_TILES = [];
+for (let i = -3; i <= 3; i++) for (let j = 0; j <= 4; j++) if (i || j) STAR_TILES.push([i * W, -j * 400]);
 
 function Cargo({ progress }) {
   const remaining = Math.round((1 - progress) * PILE_TOTAL);
@@ -81,11 +86,11 @@ function Rocket({ progress }) {
   );
 }
 
-export function Backdrop({ progress }) {
+export const Backdrop = React.memo(function Backdrop({ progress }) {
   return (
     <g>
       <defs>
-        <linearGradient id="sp-sky" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="sp-sky" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={H}>
           <stop offset="0" stopColor="#03060d" />
           <stop offset="0.65" stopColor="#0b1a2c" />
           <stop offset="1" stopColor="#1a3048" />
@@ -99,7 +104,7 @@ export function Backdrop({ progress }) {
           <stop offset="0.78" stopColor="#7cc4ff" stopOpacity="0.35" />
           <stop offset="1" stopColor="#7cc4ff" stopOpacity="0" />
         </radialGradient>
-        <linearGradient id="sp-ground" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="sp-ground" gradientUnits="userSpaceOnUse" x1="0" y1={BASE_Y - 10} x2="0" y2={H}>
           <stop offset="0" stopColor="#7b808a" />
           <stop offset="1" stopColor="#2e323a" />
         </linearGradient>
@@ -131,8 +136,12 @@ export function Backdrop({ progress }) {
           <stop offset="1" stopColor="#fff3d6" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <rect width={W} height={H} fill="url(#sp-sky)" />
-      {STARS.map((s, i) => <circle key={i} cx={s.x} cy={s.y} r={s.r} fill={i % 7 ? '#fff' : '#ffd9b0'} opacity={0.35 + (i % 5) * 0.12} />)}
+      <rect x={-BLEED} y={-BLEED} width={W + 2 * BLEED} height={H + 2 * BLEED} fill="url(#sp-sky)" />
+      <g id="sp-stars">
+        {STARS.map((s, i) => <circle key={i} cx={s.x} cy={s.y} r={s.r} fill={i % 7 ? '#fff' : '#ffd9b0'} opacity={0.35 + (i % 5) * 0.12} />)}
+      </g>
+      {/* repeat the star field into the sky revealed by a wider or taller viewport */}
+      {STAR_TILES.map(([dx, dy]) => <use key={`${dx},${dy}`} href="#sp-stars" x={dx} y={dy} />)}
       {/* earthrise */}
       <circle cx="420" cy="110" r="72" fill="url(#sp-halo)" />
       <circle cx="420" cy="110" r="58" fill="url(#sp-earth)" />
@@ -140,9 +149,9 @@ export function Backdrop({ progress }) {
       <path d="M370,100 q30,-8 70,2 M400,140 q20,-4 40,0" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.35" />
       <path d="M420,52 A58,58 0 0 1 420,168 A44,58 0 0 0 420,52 Z" fill="#03060d" opacity="0.55" />
       {/* distant ridge and ground */}
-      <path d={`M0,${BASE_Y - 40} L80,${BASE_Y - 62} L150,${BASE_Y - 48} L260,${BASE_Y - 80} L340,${BASE_Y - 52} L470,${BASE_Y - 66} L600,${BASE_Y - 44} L700,${BASE_Y - 70} L820,${BASE_Y - 50} L1000,${BASE_Y - 64} V${H} H0 Z`} fill="url(#sp-ridge)" />
-      <path d={`M0,${BASE_Y - 20} Q160,${BASE_Y - 45} 360,${BASE_Y - 20} T1000,${BASE_Y - 28} V${H} H0 Z`} fill="#5a606b" />
-      <rect y={BASE_Y - 10} width={W} height={H - BASE_Y + 10} fill="url(#sp-ground)" />
+      <path d={`M${-BLEED},${BASE_Y - 40} H0 L80,${BASE_Y - 62} L150,${BASE_Y - 48} L260,${BASE_Y - 80} L340,${BASE_Y - 52} L470,${BASE_Y - 66} L600,${BASE_Y - 44} L700,${BASE_Y - 70} L820,${BASE_Y - 50} L1000,${BASE_Y - 64} H${W + BLEED} V${H} H${-BLEED} Z`} fill="url(#sp-ridge)" />
+      <path d={`M${-BLEED},${BASE_Y - 20} H0 Q160,${BASE_Y - 45} 360,${BASE_Y - 20} T1000,${BASE_Y - 28} H${W + BLEED} V${H} H${-BLEED} Z`} fill="#5a606b" />
+      <rect x={-BLEED} y={BASE_Y - 10} width={W + 2 * BLEED} height={H - BASE_Y + 10 + BLEED} fill="url(#sp-ground)" />
       {[[660, 530, 26], [90, 522, 34], [470, 548, 20], [930, 505, 18]].map(([cx, cy, rx], i) => (
         <g key={i}>
           <ellipse cx={cx} cy={cy} rx={rx} ry={rx * 0.22} fill="#24282f" />
@@ -153,4 +162,4 @@ export function Backdrop({ progress }) {
       <Cargo progress={progress} />
     </g>
   );
-}
+});

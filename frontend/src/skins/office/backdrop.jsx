@@ -1,4 +1,5 @@
 import React from 'react';
+import { BLEED } from '../shared.jsx';
 
 const W = 1000, H = 560, BASE_Y = 470;
 const PILE_X = 130, PILE_ROWS = 7, FOLDER_W = 26, FOLDER_H = 9;
@@ -75,11 +76,11 @@ function Rack({ progress }) {
   );
 }
 
-export function Backdrop({ progress }) {
+export const Backdrop = React.memo(function Backdrop({ progress }) {
   return (
     <g>
       <defs>
-        <linearGradient id="of-wall" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="of-wall" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={H}>
           <stop offset="0" stopColor="#eeebe6" />
           <stop offset="1" stopColor="#d9d4cc" />
         </linearGradient>
@@ -88,7 +89,7 @@ export function Backdrop({ progress }) {
           <stop offset="0.7" stopColor="#c3d9ea" />
           <stop offset="1" stopColor="#f6dcc0" />
         </linearGradient>
-        <linearGradient id="of-floor" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="of-floor" gradientUnits="userSpaceOnUse" x1="0" y1={BASE_Y - 10} x2="0" y2={H}>
           <stop offset="0" stopColor="#b9b2a6" />
           <stop offset="1" stopColor="#8b8478" />
         </linearGradient>
@@ -109,7 +110,7 @@ export function Backdrop({ progress }) {
           <stop offset="1" stopColor="#fff7e8" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <rect width={W} height={H} fill="url(#of-wall)" />
+      <rect x={-BLEED} y={-BLEED} width={W + 2 * BLEED} height={H + 2 * BLEED} fill="url(#of-wall)" />
       {/* windows with skyline */}
       {[40, 260, 480].map((x) => (
         <g key={x}>
@@ -135,8 +136,8 @@ export function Backdrop({ progress }) {
       <path d={`M652,${BASE_Y - 34} q-24,-30 -6,-56 M652,${BASE_Y - 34} q-4,-40 2,-70`}
         stroke="#5fa06a" strokeWidth="2.5" fill="none" strokeLinecap="round" />
       {/* floor */}
-      <rect y={BASE_Y - 10} width={W} height={H - BASE_Y + 10} fill="url(#of-floor)" />
-      <rect y={BASE_Y - 10} width={W} height="4" fill="#57534e" />
+      <rect x={-BLEED} y={BASE_Y - 10} width={W + 2 * BLEED} height={H - BASE_Y + 10 + BLEED} fill="url(#of-floor)" />
+      <rect x={-BLEED} y={BASE_Y - 10} width={W + 2 * BLEED} height="4" fill="#57534e" />
       <g stroke="#7c766b" strokeWidth="1" opacity="0.35">
         {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => <line key={i} x1={i * 110 - 40} y1={H} x2={i * 100 + 10} y2={BASE_Y - 6} />)}
       </g>
@@ -144,4 +145,4 @@ export function Backdrop({ progress }) {
       <Backlog progress={progress} />
     </g>
   );
-}
+});
