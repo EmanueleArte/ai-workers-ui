@@ -5,8 +5,10 @@ const PORT = Number(process.env.PORT) || 8765;
 const TOKEN_BUDGET = Math.max(1, Number(process.env.TOKEN_BUDGET) || 1_000_000);
 const ROLES = ['worker', 'orchestrator'];
 const STATUSES = ['working', 'done'];
+const MAX_WORKERS = 500;
+const MAX_ACTIVITIES = 100;
 
-function createApp() {
+function createApp({ maxWorkers = MAX_WORKERS } = {}) {
   // shortcut: state is in memory, lost on restart; add a store if history must survive.
   const workers = new Map(); // lowercased name -> worker
   let tokenLimit = TOKEN_BUDGET;
@@ -23,9 +25,10 @@ function createApp() {
     if (!name || name.length > 40 || name.includes('#')) return res.status(400).json({ error: 'name required, max 40 chars, no #' });
     if (!ROLES.includes(role)) return res.status(400).json({ error: `role must be one of ${ROLES}` });
     if (workers.has(name.toLowerCase())) return res.status(409).json({ error: 'name already taken, choose another' });
+    if (workers.size >= maxWorkers) return res.status(429).json({ error: `too many workers (max ${maxWorkers}), reset the state` });
     const now = Date.now();
     workers.set(name.toLowerCase(), {
-      name, role, status: 'working', message: '', tokensUsed: 0, startedAt: now, updatedAt: now,
+      name, role, status: 'working', message: '', activities: [], tokensUsed: 0, startedAt: now, updatedAt: now,
     });
     res.status(201).json({ ok: true, name });
   });
@@ -44,13 +47,19 @@ function createApp() {
       // promotion: the worker collapses as a retired copy, the same name respawns as orchestrator.
       // The copy drops its tokens: reports are cumulative, so the orchestrator carries them on.
       const now = Date.now();
-      workers.set(`${name.toLowerCase()}#worker`, { ...w, status: 'done', tokensUsed: 0, updatedAt: now });
+      workers.set(`${name.toLowerCase()}#worker`, { ...w, activities: [...w.activities], status: 'done', tokensUsed: 0, updatedAt: now });
       Object.assign(w, { role, startedAt: now });
     }
     if (message !== undefined) w.message = String(message).slice(0, 500);
+    if (typeof message === 'string' && w.message) {
+      w.activities.push({ message: w.message, at: Date.now() });
+      // shortcut: keeps only the latest MAX_ACTIVITIES per worker; persist elsewhere if full history is needed.
+      if (w.activities.length > MAX_ACTIVITIES) w.activities.shift();
+    }
     // capped so the sum over workers stays finite (Infinity would serialize as null)
     if (Number.isFinite(tokensUsed) && tokensUsed >= 0 && tokensUsed <= Number.MAX_SAFE_INTEGER) w.tokensUsed = tokensUsed;
-    if (Number.isFinite(lim) && lim > 0 && lim <= Number.MAX_SAFE_INTEGER) tokenLimit = lim;
+    // only the orchestrator sets the budget; silently ignored from workers
+    if (w.role === 'orchestrator' && Number.isFinite(lim) && lim > 0 && lim <= Number.MAX_SAFE_INTEGER) tokenLimit = lim;
     w.status = status;
     w.updatedAt = Date.now();
     res.json({ ok: true });
@@ -73,6 +82,8 @@ function createApp() {
   });
 
   app.use(express.static(path.join(__dirname, 'public')));
+  // JSON errors (malformed body 400, too large 413), never a stack trace
+  app.use((err, _req, res, _next) => res.status(err.status || 500).json({ error: err.status ? err.message : 'internal error' }));
   return app;
 }
 

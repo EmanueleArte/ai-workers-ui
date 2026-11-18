@@ -20,7 +20,7 @@ docker compose up -d --build
 
 Apri http://localhost:8765. Per fermarla: `docker compose down`.
 
-Il budget token di default è 1.000.000; si cambia in `docker-compose.yml` (`TOKEN_BUDGET`) oppure inviando `tokenLimit` in un report.
+Il budget token di default è 1.000.000; si cambia in `docker-compose.yml` (`TOKEN_BUDGET`) oppure inviando `tokenLimit` in un report di un orchestratore (dai worker viene ignorato).
 Il pulsante **Reset sessione** cancella tutti i worker (lo stato è in memoria: si azzera anche al riavvio del container).
 
 ## 2. Installazione della skill
@@ -67,10 +67,14 @@ Se la dashboard è spenta, Claude salta il reporting senza bloccare il lavoro.
 
 | Metodo | Path | Body | Risposte |
 |---|---|---|---|
-| POST | `/api/register` | `{ name, role: "worker"\|"orchestrator" }` | 201, 400, 409 nome già usato |
+| POST | `/api/register` | `{ name, role: "worker"\|"orchestrator" }` | 201, 400, 409 nome già usato, 429 oltre 500 worker (resetta con DELETE) |
 | POST | `/api/report` | `{ name, message?, tokensUsed?, tokenLimit?, status?: "working"\|"done", role?: "orchestrator" }` | 200, 400 (anche cambio ruolo non ammesso), 404 non registrato, 409 già chiuso. `role: "orchestrator"` promuove un worker: il worker collassa e ricompare come orchestratore |
 | GET | `/api/state` | – | `{ workers, tokensUsed, tokenLimit, progress, serverTime }` |
 | DELETE | `/api/state` | – | reset |
+
+Ogni worker in `/api/state` ha `activities: [{ message, at }]` (`at` in ms epoch), dalla più vecchia alla più recente: ogni report con `message` non vuoto aggiunge una voce, si tengono le ultime 100. `message` resta l'ultimo messaggio. Alla promozione la copia ritirata del worker tiene la sua storia, l'orchestratore la continua.
+
+Errori sempre in JSON `{ error }`: body JSON malformato 400, body oltre 32 KB 413.
 
 Prova manuale:
 
